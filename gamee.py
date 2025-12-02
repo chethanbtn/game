@@ -106,14 +106,14 @@ def title_screen():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button_rect.collidepoint(event.pos):
                     running = False
-                    game_loop()
+                    game_loop_1_1()
                 elif instructions_rect.collidepoint(event.pos):
                     show_instructions()
                 elif credits_rect.collidepoint(event.pos):
                     show_credit()
 
-# -------------------- MAIN GAME LOOP --------------------
-def game_loop():
+# -------------------- GAME LOOP LEVEL 1--------------------
+def game_loop_1_1():
     clock = pygame.time.Clock()
 
     # Player life system
