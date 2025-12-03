@@ -310,7 +310,7 @@ def game_loop_1_2():
     # --- Load images ---
     hallway_img = pygame.image.load("hallway.jpeg").convert()
     parking_lot_img = pygame.transform.scale(hallway_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    student_img = pygame.image.load("student.png").convert_alpha()
+    car_img = pygame.image.load("car.png").convert_alpha()
     landa_img = pygame.image.load("landa.png").convert_alpha()
     full_heart = pygame.image.load("Heart.png").convert_alpha()
     broken_heart = pygame.image.load("Broken Heart.png").convert_alpha()
@@ -339,29 +339,25 @@ def game_loop_1_2():
     spawn_interval = 90  # car spawn rate
 
     # Win condition
-    distance = 0
-    distance_goal = 1500
-
-    # Background scroll offset
-    bg_scroll = 3
-    bg_speed = 15 
+    car_keys = []
+    Correct_key = random.randit(0,6)
+    interactable_cars = []
+    correct_car = random.randit(0,)
 
     running = True
     while running:
         clock.tick(60)
 
-        # -------------------- BACKGROUND SCROLL --------------------
 
-        screen.blit(hallway_img, (bg_scroll, 0))
-        screen.blit(hallway_img, (bg_scroll + SCREEN_WIDTH, 0))
+        screen.blit(parking_lot_img)
 
-        # -------------------- SPAWN STUDENTS --------------------
+        # -------------------- SPAWN carsS --------------------
         spawn_timer += 6
         if spawn_timer > spawn_interval:
             car_w = random.randint(35, 60)
             car_h = random.randint(40, 70)
 
-            student_rect = pygame.Rect(
+            car_rect = pygame.Rect(
                 SCREEN_WIDTH,
                 SCREEN_HEIGHT - car_h - 30,
                 car_w,
@@ -381,19 +377,6 @@ def game_loop_1_2():
         if keys[pygame.K_RIGHT]:
             player_x = min(SCREEN_WIDTH - PLAYER_W, player_x + player_speed)
 
-        if not is_jumping and keys[pygame.K_SPACE]:
-            is_jumping = True
-            jump_velocity = -jump_height  # upward force
-
-        # Jump physics
-        if is_jumping:
-            player_y += jump_velocity
-            jump_velocity += gravity  # gravity pulls down
-
-            # Hit the ground
-            if player_y >= SCREEN_HEIGHT - PLAYER_H - 30:
-                player_y = SCREEN_HEIGHT - PLAYER_H - 30
-                is_jumping = False
 
         # Update rect
         player_rect.x = player_x
@@ -402,11 +385,11 @@ def game_loop_1_2():
         # Draw player
         screen.blit(landa_img, (player_x, player_y))
 
-        # -------------------- STUDENT MOVEMENT & COLLISION --------------------
+        # -------------------- car MOVEMENT & COLLISION --------------------
         for car, speed in cars[:]:
             car.x -= speed
 
-            # Draw student resized to its random size
+            # Drawing cars
             scaled_car_img = pygame.transform.scale(car_img, (car.width, car.height))
             screen.blit(scaled_car_img, (car.x, car.y))
 
@@ -417,14 +400,14 @@ def game_loop_1_2():
 
                 # Show hit text ONLY if player still has lives left
                 if lives > 0:
-                    draw_text("Ouch! You hit a student! -1 life", font_medium, (255, 100, 100),
+                    draw_text("Ouch! A car railed you! -1 life", font_medium, (255, 100, 100),
                             SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                     pygame.display.flip()
                     pygame.time.delay(600)
 
                 # Game over screen
                 if lives <= 0:
-                    draw_text("GAME OVER! You have been sued by the students!", font_medium, (255, 0, 0),
+                    draw_text("GAME OVER! You have been sent to the overpriced hospital!", font_medium, (255, 0, 0),
                             SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                     pygame.display.flip()
                     pygame.time.delay(2000)
