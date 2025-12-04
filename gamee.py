@@ -280,10 +280,11 @@ def game_loop_1_1():
         # -------------------- LEVEL COMPLETE --------------------
         if distance >= distance_goal:
             draw_text("Level One Completed!", font_medium, (0, 255, 0),
-                      SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                    SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
             pygame.display.flip()
             pygame.time.delay(3000)
-            return
+
+            return game_loop_1_2()
 
         pygame.display.flip()
 
@@ -293,151 +294,160 @@ def game_loop_1_1():
                 pygame.quit()
                 sys.exit()
 
-# ------------------Level 2, World 1 -----------------
+            # ---- DEV CHEAT: press 1 to skip level ----
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return game_loop_1_2() # instantly finish the level
+
+# -------------------- GAME LOOP LEVEL 2--------------------                                                                                    
 def game_loop_1_2():
     clock = pygame.time.Clock()
 
-    # Player life system
+    # Lives
     lives = 3
     max_lives = 3
 
-    # --- Level-specific music ---
+    # --- Level 2 music ---
     pygame.mixer.music.stop()
     pygame.mixer.music.load("level 1 music.mp3")
     pygame.mixer.music.set_volume(1)
     pygame.mixer.music.play(-1)
 
     # --- Load images ---
-    hallway_img = pygame.image.load("hallway.jpeg").convert()
-    parking_lot_img = pygame.transform.scale(hallway_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    parking_img = pygame.image.load("parking_lot.jpg").convert()
+    parking_img = pygame.transform.scale(parking_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
     car_img = pygame.image.load("car.png").convert_alpha()
     landa_img = pygame.image.load("landa.png").convert_alpha()
-    full_heart = pygame.image.load("Heart.png").convert_alpha()
-    broken_heart = pygame.image.load("Broken Heart.png").convert_alpha()
 
-    # Resize heart icons
-    heart_size = (40, 40)
-    full_heart = pygame.transform.scale(full_heart, heart_size)
-    broken_heart = pygame.transform.scale(broken_heart, heart_size)
+    # Resize hearts
+    full_heart = pygame.transform.scale(pygame.image.load("Heart.png"), (40, 40))
+    broken_heart = pygame.transform.scale(pygame.image.load("Broken Heart.png"), (40, 40))
 
     # Resize player sprite
     PLAYER_W = 70
     PLAYER_H = 130
     landa_img = pygame.transform.scale(landa_img, (PLAYER_W, PLAYER_H))
-    landa_img = pygame.transform.flip(landa_img, True, False)  # flip to face right direction
+    landa_img = pygame.transform.flip(landa_img, True, False)
 
-    # Player start position & movement vars
-    player_x = 100
+    # Player starting pos
+    player_x = SCREEN_WIDTH // 2
     player_y = SCREEN_HEIGHT - PLAYER_H - 30
     player_speed = 8
     player_rect = pygame.Rect(player_x, player_y, PLAYER_W, PLAYER_H)
 
-
-    # Obstacles
+    # Car list
     cars = []
     spawn_timer = 0
-    spawn_interval = 90  # car spawn rate
-
-    # Win condition
-    car_keys = []
-    Correct_key = random.randit(0,6)
-    interactable_cars = []
-    correct_car = random.randit(0,)
+    spawn_interval = 120  # slower than level 1 for blinking intro
 
     running = True
     while running:
         clock.tick(60)
 
+        # -------------------- DRAW BACKGROUND --------------------
+        screen.blit(parking_img, (0, 0))
 
-        screen.blit(parking_lot_img)
+        # -------------------- SPAWN CARS --------------------
+        spawn_timer += 1
+        if spawn_timer >= spawn_interval:
+            w = random.randint(80, 140)
+            h = random.randint(60, 90)
+            speed = random.randint(10, 18)
 
-        # -------------------- SPAWN carsS --------------------
-        spawn_timer += 6
-        if spawn_timer > spawn_interval:
-            car_w = random.randint(35, 60)
-            car_h = random.randint(40, 70)
+            car_rect = pygame.Rect(SCREEN_WIDTH + 200,  # spawn off-screen
+                                   random.randint(150, SCREEN_HEIGHT - h - 20),
+                                   w, h)
 
-            car_rect = pygame.Rect(
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT - car_h - 30,
-                car_w,
-                car_h
-            )
+            cars.append({
+                "rect": car_rect,
+                "speed": speed,
+                "blink_timer": 0,
+                "blink_times": 6  # (6 toggles = 3 real blinks)
+            })
 
-            car_speed = random.randint(15, 22)
-            cars.append((car_rect, car_speed))
             spawn_timer = 0
 
         # -------------------- PLAYER MOVEMENT --------------------
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
-            player_x = max(0, player_x - player_speed)
-
+            player_x -= player_speed
         if keys[pygame.K_RIGHT]:
-            player_x = min(SCREEN_WIDTH - PLAYER_W, player_x + player_speed)
+            player_x += player_speed
+        if keys[pygame.K_UP]:
+            player_y -= player_speed
+        if keys[pygame.K_DOWN]:
+            player_y += player_speed
 
+        # Keep player inside the screen
+        player_x = max(0, min(SCREEN_WIDTH - PLAYER_W, player_x))
+        player_y = max(0, min(SCREEN_HEIGHT - PLAYER_H, player_y))
 
-        # Update rect
         player_rect.x = player_x
         player_rect.y = player_y
 
-        # Draw player
         screen.blit(landa_img, (player_x, player_y))
 
-        # -------------------- car MOVEMENT & COLLISION --------------------
-        for car, speed in cars[:]:
-            car.x -= speed
+        # -------------------- CAR MOVEMENT + BLINKING --------------------
+        for car in cars[:]:
+            rect = car["rect"]
 
-            # Drawing cars
-            scaled_car_img = pygame.transform.scale(car_img, (car.width, car.height))
-            screen.blit(scaled_car_img, (car.x, car.y))
+            # Blinking effect (before moving)
+            if car["blink_times"] > 0:
+                car["blink_timer"] += 1
+                if car["blink_timer"] % 10 == 0:
+                    car["blink_times"] -= 1
+                if car["blink_timer"] % 20 < 10:
+                    pass  # invisible (blink off)
+                else:
+                    scaled = pygame.transform.scale(car_img, (rect.width, rect.height))
+                    screen.blit(scaled, (rect.x, rect.y))
+                continue
 
-            # Collision: lose life
-            if player_rect.colliderect(car):
+            # After blinking → car moves normally
+            rect.x -= car["speed"]
+            scaled = pygame.transform.scale(car_img, (rect.width, rect.height))
+            screen.blit(scaled, (rect.x, rect.y))
+
+            # Collision check
+            if player_rect.colliderect(rect):
                 lives -= 1
-                car.remove((car, speed))
+                cars.remove(car)
 
-                # Show hit text ONLY if player still has lives left
+                # Hit text
                 if lives > 0:
-                    draw_text("Ouch! A car railed you! -1 life", font_medium, (255, 100, 100),
-                            SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                    draw_text("You got hit by a car! -1 life", font_medium, (255, 100, 100),
+                              SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                     pygame.display.flip()
-                    pygame.time.delay(600)
+                    pygame.time.delay(800)
 
-                # Game over screen
                 if lives <= 0:
-                    draw_text("GAME OVER! You have been sent to the overpriced hospital!", font_medium, (255, 0, 0),
-                            SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                    draw_text("GAME OVER! You were sent to the overpriced hospital!",
+                              font_medium, (255, 0, 0), SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                     pygame.display.flip()
                     pygame.time.delay(2000)
                     return
 
-        # -------------------- DISTANCE & UI --------------------
+            # Delete car off-screen
+            if rect.x < -rect.width:
+                cars.remove(car)
 
-        # Draw hearts (life system)
+        # -------------------- HEART UI --------------------
         for i in range(max_lives):
             x = 20 + i * 50
-            y = 20
             if i < lives:
-                screen.blit(full_heart, (x, y))
+                screen.blit(full_heart, (x, 20))
             else:
-                screen.blit(broken_heart, (x, y))
-
-        # -------------------- LEVEL COMPLETE --------------------
-        if distance >= distance_goal:
-            draw_text("Level Two Completed!", font_medium, (0, 255, 0),
-                      SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-            pygame.display.flip()
-            pygame.time.delay(3000)
-            return
+                screen.blit(broken_heart, (x, 20))
 
         pygame.display.flip()
 
-        # Quit handler
+        # Quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
 # -------------------- START GAME --------------------
 title_screen()
