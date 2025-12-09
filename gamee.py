@@ -5,8 +5,8 @@ import random
 pygame.init()
 
 # -------------------- SCREEN SETUP --------------------
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1530
+SCREEN_HEIGHT = 900
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("The Adventures of Mr.Landa")
 
@@ -314,7 +314,7 @@ def game_loop_1_2():
     pygame.mixer.music.play(-1)
 
     # --- Load images ---
-    parking_img = pygame.image.load("parking_lot.jpg").convert()
+    parking_img = pygame.image.load("parkinglot.png").convert()
     parking_img = pygame.transform.scale(parking_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     car_img = pygame.image.load("car.png").convert_alpha()
