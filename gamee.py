@@ -265,8 +265,18 @@ def game_loop_1_1():
         # -------------------- DISTANCE & UI --------------------
         distance += 0.5
 
-        draw_text(f"Distance: {int(distance)} / {distance_goal} m",
-                  font_small, WHITE, SCREEN_WIDTH // 2, 30)
+        # ----- DISTANCE TEXT WITH BACKGROUND -----
+        distance_text = f"Distance: {int(distance)} / {distance_goal} m"
+        text_surface = font_small.render(distance_text, True, WHITE)
+        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, 30))
+
+        # Background box (black with slight transparency)
+        bg_rect = pygame.Rect(text_rect.x - 10, text_rect.y - 5,
+                            text_rect.width + 20, text_rect.height + 10)
+        pygame.draw.rect(screen, (0, 0, 0, 180), bg_rect)
+
+        screen.blit(text_surface, text_rect)
+
 
         # Draw hearts (life system)
         for i in range(max_lives):
@@ -314,7 +324,7 @@ def game_loop_1_2():
     pygame.mixer.music.play(-1)
 
     # --- Load images ---
-    parking_img = pygame.image.load("parkinglot.png").convert()
+    parking_img = pygame.image.load("parking_lot.jpeg").convert()
     parking_img = pygame.transform.scale(parking_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     car_img = pygame.image.load("car.png").convert_alpha()
