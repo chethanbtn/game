@@ -324,7 +324,7 @@ def game_loop_1_2():
     pygame.mixer.music.play(-1)
 
     # --- Load images ---
-    parking_img = pygame.image.load("parking_lot.jpeg").convert()
+    parking_img = pygame.image.load("parking_lot.png").convert()
     parking_img = pygame.transform.scale(parking_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     car_img = pygame.image.load("car.png").convert_alpha()
