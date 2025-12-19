@@ -5,8 +5,8 @@ import random
 pygame.init()
 
 # -------------------- SCREEN SETUP --------------------
-SCREEN_WIDTH = 1530
-SCREEN_HEIGHT = 900
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("The Adventures of Mr.Landa")
 
@@ -331,19 +331,19 @@ def game_loop_1_2():
     blue_car_img = pygame.image.load("blue_car.png").convert_alpha()
     red_car_img = pygame.image.load("red_car.png").convert_alpha()
 
-    CAR_SIZE = (160, 90)
+    CAR_SIZE = (100, 90)
     blue_car_img = pygame.transform.scale(blue_car_img, CAR_SIZE)
     red_car_img = pygame.transform.scale(red_car_img, CAR_SIZE)
 
     # -------------------- STATIC CLICKABLE PARKED CARS --------------------
     parked_cars = [
         {
-            "rect": pygame.Rect(200, SCREEN_HEIGHT - 160, *CAR_SIZE),
+            "rect": pygame.Rect(295, SCREEN_HEIGHT - 180, *CAR_SIZE),
             "img": blue_car_img,
             "clicked": False
         },
         {
-            "rect": pygame.Rect(600, SCREEN_HEIGHT - 300, *CAR_SIZE),
+            "rect": pygame.Rect(550, SCREEN_HEIGHT - 180, *CAR_SIZE),
             "img": red_car_img,
             "clicked": False
         },
