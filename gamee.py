@@ -328,6 +328,33 @@ def game_loop_1_2():
     parking_img = pygame.transform.scale(parking_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     car_img = pygame.image.load("car.png").convert_alpha()
+    blue_car_img = pygame.image.load("blue_car.png").convert_alpha()
+    red_car_img = pygame.image.load("red_car.png").convert_alpha()
+
+    CAR_SIZE = (160, 90)
+    blue_car_img = pygame.transform.scale(blue_car_img, CAR_SIZE)
+    red_car_img = pygame.transform.scale(red_car_img, CAR_SIZE)
+
+    # -------------------- STATIC CLICKABLE PARKED CARS --------------------
+    parked_cars = [
+        {
+            "rect": pygame.Rect(200, SCREEN_HEIGHT - 160, *CAR_SIZE),
+            "img": blue_car_img,
+            "clicked": False
+        },
+        {
+            "rect": pygame.Rect(600, SCREEN_HEIGHT - 300, *CAR_SIZE),
+            "img": red_car_img,
+            "clicked": False
+        },
+        {
+            "rect": pygame.Rect(1000, SCREEN_HEIGHT - 220, *CAR_SIZE),
+            "img": blue_car_img,
+            "clicked": False
+        }
+    ]
+
+
     landa_img = pygame.image.load("landa.png").convert_alpha()
 
     # Resize hearts
@@ -356,8 +383,11 @@ def game_loop_1_2():
         clock.tick(60)
 
         # -------------------- DRAW BACKGROUND --------------------
+        
         screen.blit(parking_img, (0, 0))
 
+        for car in parked_cars:
+            screen.blit(car["img"], car["rect"])
         # -------------------- SPAWN CARS --------------------
         spawn_timer += 1
         if spawn_timer >= spawn_interval:
@@ -454,10 +484,28 @@ def game_loop_1_2():
         pygame.display.flip()
 
         # Quit
+                # -------------------- EVENTS --------------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for car in parked_cars:
+                    if car["rect"].collidepoint(event.pos) and not car["clicked"]:
+                        car["clicked"] = True
+                        lives = min(max_lives, lives + 1)
+
+                        draw_text(
+                            "You checked the parked car and found a health kit! +1 life",
+                            font_medium,
+                            (100, 255, 100),
+                            SCREEN_WIDTH // 2,
+                            SCREEN_HEIGHT // 2
+                        )
+                        pygame.display.flip()
+                        pygame.time.delay(800)
+
 
 # -------------------- START GAME --------------------
 title_screen()
